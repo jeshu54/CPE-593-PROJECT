@@ -34,7 +34,8 @@ uint_Type PrimeGenerator::getNextPrime(uint_Type val)
   // Lookup would be ideal over finding the next prime number manually
   set<uint_Type>::iterator index = find(knownPrimes.begin(), knownPrimes.end(), val);
   if (index != knownPrimes.end() && *(++index)){
-    return *(++index);
+    // already incremented in the if statement, return the value
+    return *index;
   }
   // We don't already have the prime saved, find the next one
   // Only look at odd numbers
