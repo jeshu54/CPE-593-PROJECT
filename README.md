@@ -3,7 +3,8 @@ CPE-593 PROJECT: RSA
 
 Project: Implement RSA using a Big Integer library
 Team Members: Avro, Karan and Vincent.
-
+Language: C++
+Libraries: Big Integer, Math.h, stdlib
 
 Assignment:
 Implement RSA using a big integer library. It doesn’t have to be production quality, but you would need to implement Diffie-Hellman key exchange and use AES-256 (you don’t have to write that) to exchange secret messages.
@@ -26,9 +27,11 @@ Project Work Breakdown:
 Vincent:
 1.	Calculate prime numbers
 2.	Documentation
+
 Karan:
 1.	Encrypt/decrypt a message in the same program
 2.	Create presentation
+
 Avro:
 1.	Git Repo and performance evaluation
 2.	Implement key exchange(Diffie-Hellman)
