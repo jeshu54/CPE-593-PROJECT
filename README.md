@@ -36,7 +36,7 @@ Avro:
 1.	Git Repo and performance evaluation
 2.	Implement key exchange(Diffie-Hellman)
 
-Weekly Call: Thursday: 8 pm
+Weekly Call: Wednesday: 8 pm
 
 Goals (I = Independent, D = Dependent)
 
