@@ -12,7 +12,7 @@ Implement RSA using a big integer library. It doesn’t have to be production qu
 Project sections:
 - Big Integer prime numbers (generate prime numbers)
 - implement backend to encrypt/decrypt (use prime numbers)
-https://www.tutorialspoint.com/cplusplus-program-to-implement-the-rsa-algorithm 
+https://www.geeksforgeeks.org/rsa-algorithm-cryptography/
 - add diffie hellman key exchange for initial rsa key (not our own code)
 https://www.geeksforgeeks.org/implementation-diffie-hellman-algorithm/ 
 
@@ -29,7 +29,7 @@ Vincent:
 2.	Documentation
 
 Karan:
-1.	Encrypt/decrypt a message in the same program
+1.	Encrypt/decrypt a message using RSA encryption
 2.	Create presentation
 
 Avro:
