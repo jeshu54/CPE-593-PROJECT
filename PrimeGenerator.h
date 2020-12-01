@@ -2,31 +2,72 @@
 #include <set>
 // For uint64_t
 #include <stdint.h>
-
-// Type of values we are using
-// This may change to BigInteger, so typedef for all instances
-typedef uint64_t uint_Type;
+// For using mpz_t and gmp functions
+#include <gmp.h>
 
 class PrimeGenerator{
 private:
-  // Known primes are stored in a set (sorted) to get known values rather than
-  // compute the next one if the situation comes up
-  std::set<uint_Type> knownPrimes;
+  /* 
+  * List of the first few known prime values to check primality with trial division
+  * This can be expanded or generated with a sieve in the future
+  */
+  int knownPrimes[70] = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
+                        31, 37, 41, 43, 47, 53, 59, 61, 67,
+                        71, 73, 79, 83, 89, 97, 101, 103,
+                        107, 109, 113, 127, 131, 137, 139,
+                        149, 151, 157, 163, 167, 173, 179,
+                        181, 191, 193, 197, 199, 211, 223,
+                        227, 229, 233, 239, 241, 251, 257,
+                        263, 269, 271, 277, 281, 283, 293,
+                        307, 311, 313, 317, 331, 337, 347, 349 };
+
+  /* 
+  * GMP random generation state
+  */
+  gmp_randstate_t randState;
+
+  /* 
+  * Number of iterations for Miller Rabin primality test
+  */
+  uint16_t iterations;
 
 public:
-  // Constructor
+  /* 
+  * Default Constructor
+  */
   PrimeGenerator();
 
-  // Destructor 
+  /* 
+  * Secondary constructor
+  */
+  PrimeGenerator(uint16_t);
+
+  /* 
+  * Destructor 
+  */
   ~PrimeGenerator(){}
 
-  // Determine if a given value is prime or not
-  bool isPrime(uint_Type);
+  /*
+  * Set the random number generator seed to the seed passed in
+  */
+  void setSeed(unsigned long long seed);
 
-  // Gets the next prime following the given value
-  uint_Type getNextPrime(uint_Type);
+  /*
+  * Generate a random number with numBits number of bits
+  */
+  void getRandom(mpz_t& result, uint64_t numBits);
 
-  // Gets the next prime following the last index of saved primes
-  uint_Type getNextPrime();
+  /*
+  * Gets random number of length numBits in length
+  * and ensures it is prime before returning
+  * Utilizes MillerRabin test with iterations passed into constructor
+  * (defaults to 20)
+  */
+  void getPrimeNumber(mpz_t& result, uint64_t numBits);
+
+  /*
+  * Determine if a given value is prime or not
+  */ 
+  bool isPrime(mpz_t&);
 };
 
