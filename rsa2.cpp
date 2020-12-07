@@ -18,20 +18,38 @@ int gcd(int a, int b) {
     }
 }
 
-char rsaenc(char val,double e,double p,double q)
+string rsaenc(string a,double e,double p,double q)
 {
     double phi= (p-1)*(q-1);                          //calculate phi
     double n=p*q;
-
-    double o=double(val);
-    double enck = pow(o,e);                          //encryption key
+    double o,t,m;
+    int c=0;
+    for(int i=0;i<a.length();i++)
+    {
+        t=int(a[i]);
+        cout<<t<<" ";
+        c=0;
+        for(int j=t;j>0;j/=10)
+        c++;
+        m=pow(10,c);
+        o=o*m+t;
+    }
+    cout<<"\no ="<<o<<endl;
+    long double enck = pow(o,e);                          //encryption key
 
     double d1 = 1/e;                                 
     double d=  fmod(d1,phi);                        //private key
+
     double deck = pow(enck ,d);                         //decryption key 
     
     double enc =fmod(enck ,n);                            //encrypt the message
-    char en=char(enc);
+    
+    string en;
+   for(int i=a.length();i>0;i--)
+    {
+        en[i]=fmod(enc,10);
+        enc/=10;
+    }
     
     cout<<"\n"<<"p = "<<p<<"\t\tq = "<<q;
     cout<<"\n"<<"n=p*q = "<<n<<"\tphi = "<<phi;
@@ -51,10 +69,15 @@ char rsaenc(char val,double e,double p,double q)
     return en;
 }
 
-char rsadec(char val,double e,double p,double q)
+string rsadec(string a,double e,double p,double q)
 {
-    double enck=double(val);
-
+    double enck;
+    for(int i=0;i<a.length();i++)
+    {
+        enck=int(a[i]);
+    if(i<a.length()-1)
+        enck*=10;
+    }
     double phi= (p-1)*(q-1);                           //calculate phi
     double n=p*q;
 
@@ -63,7 +86,12 @@ char rsadec(char val,double e,double p,double q)
     double deck = pow(enck ,d);                         //decryption key 
      
     double dec =fmod(deck ,n);                              //decrypt the message
-    char de=char(dec);
+    string de;
+   for(int i=a.length();i>0;i--)
+    {
+        de[i]=fmod(dec,10);
+        dec/=10;
+    }
     
     cout<<"\n"<<"p = "<<p<<"\t\tq = "<<q;
     cout<<"\n"<<"n=p*q = "<<n<<"\tphi = "<<phi;
@@ -77,7 +105,7 @@ char rsadec(char val,double e,double p,double q)
 
 double pubkey(double p,double q)
 {
-    double e=rand()%100;
+    double e=rand()%10;
     double phi= (p-1)*(q-1);                          //calculate phi
     double track;
     
@@ -101,11 +129,12 @@ int main() {
     //cin>>orig;
     getline(cin,orig);
     de=en=orig;
-    for(int i=0;i<orig.length();i++)
-    en[i]=rsaenc(orig[i],e,p,q);
+    //for(int i=0;i<orig.length();i++)
+    //en[i]=rsaenc(orig[i],e,p,q);
+    en=rsaenc(orig,e,p,q);
     //for(int i=0;i<orig.length();i++)
     //de[i]=rsadec(en[i],e,p,q);
     cout<<endl<<en;
-    cout<<endl<<de;
+    //cout<<endl<<de;
     return 0;
 }
