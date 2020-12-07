@@ -81,23 +81,3 @@ double pubkey(double p,double q)
     }
     return e;                              //public key
 }
-int main() {
-  /* BigInteger a = pow(2,7830457);
-   cout<<a;
-   */
-    double p = 31, q = 29;
-    string orig,de,en;
-    double e= pubkey(p,q);
-    cout<<"Enter the message : ";
-    //cin>>orig;
-    getline(cin,orig);
-    de=en=orig;
-    double k=0;
-    for(int i=0;i<orig.length();i++)
-    k=rsaenc(en[i],e,p,q);
-    for(int i=0;i<orig.length();i++)
-    rsadec(de[i],e,p,q,k);
-    cout<<"\nThe encrypted text = "<<en;
-    cout<<"\nThe decrypted text = "<<de;
-    return 0;
-}
