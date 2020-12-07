@@ -31,6 +31,11 @@ private:
   */
   uint16_t iterations;
 
+  /*
+  * Number of bits mpz random numbers should work with
+  */
+  uint64_t numBits;
+
 public:
   /* 
   * Default Constructor
@@ -43,19 +48,29 @@ public:
   PrimeGenerator(uint16_t);
 
   /* 
+  * Tertiary constructor
+  */
+  PrimeGenerator(uint16_t, uint64_t);
+
+  /* 
   * Destructor 
   */
   ~PrimeGenerator(){}
 
   /*
+  * Set the number of bits when generating random numbers
+  */
+  void setNumBits(uint64_t bits);
+
+  /*
   * Set the random number generator seed to the seed passed in
   */
-  void setSeed(unsigned long long seed);
+  void setSeed(uint64_t seed);
 
   /*
   * Generate a random number with numBits number of bits
   */
-  void getRandom(mpz_t& result, uint64_t numBits);
+  void getRandom(mpz_t result);
 
   /*
   * Gets random number of length numBits in length
@@ -63,11 +78,17 @@ public:
   * Utilizes MillerRabin test with iterations passed into constructor
   * (defaults to 20)
   */
-  void getPrimeNumber(mpz_t& result, uint64_t numBits);
+  void getPrimeNumber(mpz_t result);
 
   /*
   * Determine if a given value is prime or not
   */ 
-  bool isPrime(mpz_t&);
+  bool isPrime(mpz_t);
+
+  /*
+  * Returns false if composite, true if probably prime
+  */
+  bool millerRabin(mpz_t d, mpz_t n);
+
 };
 

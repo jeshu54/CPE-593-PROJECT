@@ -16,6 +16,7 @@ PrimeGenerator::PrimeGenerator()
 {
   iterations = 20;
   gmp_randinit_default(randState);
+  numBits = 100;
 }
 
 /*
@@ -25,6 +26,24 @@ PrimeGenerator::PrimeGenerator()
 PrimeGenerator::PrimeGenerator(uint16_t v) : iterations(v)
 {
   gmp_randinit_default(randState);
+  numBits = 100;
+}
+
+/*
+* Secondary constructor, sets upu the random generator state
+* and sets the number of Miller Rabin iterations and number of bits
+*/
+PrimeGenerator::PrimeGenerator(uint16_t v, uint64_t b) : iterations(v), numBits(b)
+{
+  gmp_randinit_default(randState);
+}
+
+/*
+* Set the number of bits when generating random numbers
+* Expected to be 7+ bits to find prime values with the checker
+*/
+void PrimeGenerator::setNumBits(uint64_t bits){
+  numBits = bits;
 }
 
 /*
@@ -37,7 +56,7 @@ void PrimeGenerator::setSeed(uint64_t seed) {
 /*
 * Generate a random number with numBits number of bits
 */
-void PrimeGenerator::getRandom(mpz_t& result, uint64_t numBits){
+void PrimeGenerator::getRandom(mpz_t result){
   mpz_init(result);
   mpz_rrandomb(result, randState, numBits);
 }
@@ -48,123 +67,118 @@ void PrimeGenerator::getRandom(mpz_t& result, uint64_t numBits){
 * Utilizes MillerRabin test with iterations passed into constructor
 * (defaults to 20)
 */
-void PrimeGenerator::getPrimeNumber(mpz_t& result, uint64_t numBits = 100) {
-  try{
+void PrimeGenerator::getPrimeNumber(mpz_t result) {
   // Initialize return value
   mpz_init(result);
   bool primeFound = false;
   // loop until a prime value is found
   while(!primeFound){
     // get random number
-    getRandom(result, numBits);
+    getRandom(result);
     primeFound = isPrime(result);
-  }
-  }
-  catch(exception err){
-    std::cout << err.what();
   }
 }
 
-bool PrimeGenerator::isPrime(mpz_t& result){
+bool PrimeGenerator::isPrime(mpz_t result){
 
   mpz_t tmp;
   int count = 0;
   mpz_init(tmp);
-  bool doContinue = true;
   // test divisibility by first few prime values
-  for (int i = 0; doContinue && i < sizeof(knownPrimes); i++) {
+  for (int i = 0; i < sizeof(knownPrimes) / sizeof(mpz_t); i++) {
     // divisible by one of the prime numbers
     // do not continue checking this value
     if (mpz_mod_ui(tmp, result, knownPrimes[i]) == 0) {
-      doContinue = false;
-      break;
+      return false;
     }
   }
 
-  if (doContinue) {
-    gmp_printf("Random number: %Zd\n", result);
-    return true;
-  }
+  // passed trial division by known primes, do miller rabin test
   // Miller rabin test
-  while (doContinue && count < iterations) {
+  // Find r such that n = 2^d * r + 1 for some r >= 1
+  mpz_t d;
+  mpz_init(d);
+  mpz_sub_ui(d, result, 1);
+  while(mpz_divisible_ui_p(d, 2) != 0){
+    mpz_div_ui(d, d, 2);
+  }
+
+  while (count < iterations) {
+    if (!millerRabin(d, result)) {
+      return false;
+    }
     count++;
   }
 
-  return false;
-}
-
-int main() {
-  PrimeGenerator *pg = new PrimeGenerator(20);
-  mpz_t value;
-  pg->setSeed(10);
-  pg->getPrimeNumber(value);
-}
-
-
-
-
-
-/*
-*
-// Determine if a given value is prime or not
-bool PrimeGenerator::isPrime(mpz_t& val)
-{
-  // Placeholder for efficient algorithm
-  for (int i = 2; i <= val / 2; i++)
-  {
-    if (val % i == 0)
-    {
-      return false;
-      break;
-    }
-  }
+  // probably prime
   return true;
 }
 
-// Gets the next prime following the given value
-mpz_t& PrimeGenerator::getNextPrime(mpz_t& val)
-{
-  // Check if we already have the next prime number
-  // Lookup would be ideal over finding the next prime number manually
-  set<mpz_t&>::iterator index = find(knownPrimes.begin(), knownPrimes.end(), val);
-  if (index != knownPrimes.end() && *(++index)){
-    // already incremented in the if statement, return the value
-    return *index;
+bool PrimeGenerator::millerRabin(mpz_t d, mpz_t n){
+  
+  mpz_t rand, x, nMinus1;
+  mpz_init(nMinus1);
+  mpz_sub_ui(nMinus1, n, 1);
+  mpz_init_set_ui(rand, 0);
+  mpz_init(x);
+  // [2, n-2]
+  while (mpz_cmp(n, rand) < 0 || mpz_cmp_d(rand, 2) < 0){
+    getRandom(rand);
   }
-  // We don't already have the prime saved, find the next one
-  // Only look at odd numbers
-  if (val % 2 == 0){ 
-    val += 1;
+  // powermod
+  mpz_powm(x, rand, d, n);
+  if (mpz_cmp_ui(x, 1) == 0 || mpz_cmp(x, nMinus1) == 0){
+    return true;
   }
-  // Find the next prime value
-  for (mpz_t& i = val; i < numeric_limits<mpz_t&>::max(); i += 2)
-  {
-    if (isPrime(i))
-    {
-      // Found a prime, save it and return
-      knownPrimes.insert(i);
-      return i;
+
+  // square x while:
+  // d does not reach nMinus1
+  // x^2 % n is not 1
+  // x^2 % n is not nMinus1
+  while (mpz_cmp(d, nMinus1) != 0){
+    // power mod x
+    mpz_powm_ui(x, x, 2, n);
+    // double d
+    mpz_mul_ui(d, d, 2);
+    // conditions
+    if (mpz_cmp_ui(x, 1) == 0){
+      return false;
+    }
+    if (mpz_cmp(x, nMinus1) == 0){
+      return true;
     }
   }
-  // Base case return 0
-  return 0;
+  // condition never reached, return composite
+  return false;
 }
 
-// Gets the next prime following the last index of saved primes
-mpz_t& PrimeGenerator::getNextPrime()
-{
-  // From the last known prime, increment by 2 looking for the next value
-  for (mpz_t& i = *knownPrimes.end(); i < numeric_limits<mpz_t&>::max(); i += 2)
-  {
-    if (isPrime(i))
-    {
-      // Found a prime, save it and return
-      knownPrimes.insert(i);
-      return i;
+int main(int argc, char** argv) {
+  try {
+    PrimeGenerator *pg = new PrimeGenerator(50, 1000);
+    pg->setSeed(1);
+    pg->setNumBits(100);
+
+    switch (argc) {
+    case 1:
+      break;
+    case 2:
+      pg->setNumBits(atoll(argv[1]));
+      break;
+    case 3:
+      pg->setNumBits(atoll(argv[1]));
+      pg->setSeed(atoll(argv[2]));
+      break;
     }
+
+    mpz_t value;
+    mpz_init(value);
+
+    pg->getPrimeNumber(value);
+    gmp_printf("Prime value: %Zd\n", value);
   }
-  // Base case return 0
+  catch (exception err)
+  {
+    std::cout << err.what() << std::endl;
+  }
   return 0;
 }
-
-*/
