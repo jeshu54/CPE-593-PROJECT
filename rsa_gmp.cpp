@@ -60,7 +60,6 @@ void rsaenc(mpz_t enck, char &val, mpz_t e, mpz_t p, mpz_t q)
     mpf_div_ui(d1, tmp, mpz_get_ui(e));
     
     //private key
-    // ?????
     mpf_t d, tmpPhi;
     mpf_init(d);
     mpf_init(tmpPhi);
@@ -85,9 +84,6 @@ void rsaenc(mpz_t enck, char &val, mpz_t e, mpz_t p, mpz_t q)
     mpz_init(enc);
     std::cout << mpz_get_ui(n) << std::endl;
 
-    // infinite loop??
-    // bad version of fmod
-
     mpz_mod(enc, enck, n);
 
     val = char(mpz_get_ui(enc));
@@ -107,17 +103,55 @@ void rsaenc(mpz_t enck, char &val, mpz_t e, mpz_t p, mpz_t q)
 
 }
 
-void rsadec(char &val, double e, double p, double q, double enck)
+void rsadec(char &val, mpz_t e, mpz_t p, mpz_t q, mpz_t enck)
 {
-    double phi = (p - 1) * (q - 1); //calculate phi
-    double n = p * q;
+    mpz_t phi, n;
+    mpz_init(phi);
+    mpz_init(n);
 
-    double d1 = 1 / e;
-    double d = fmod(d1, phi);   //private key
-    double deck = pow(enck, d); //decryption key
+    // set p - 1 and q - 1
+    mpz_t ptmp, qtmp;
+    mpz_init(ptmp);
+    mpz_init(qtmp);
+    mpz_sub_ui(ptmp, p, 1);
+    mpz_sub_ui(qtmp, q, 1);
 
-    double dec = fmod(deck, n); //decrypt the message
-    char de = char(dec);
+    // calculate phi
+    mpz_mul(ptmp, ptmp, qtmp);
+    mpz_set(phi, ptmp);
+
+    mpz_mul(n, p, q);
+
+    mpf_t d1, tmp;
+    mpf_init(d1);
+    mpf_init(tmp);
+    mpf_set_d(tmp, -1);
+    mpf_div_ui(d1, tmp, mpz_get_ui(e));
+
+    //private key
+    mpf_t d, tmpPhi;
+    mpf_init(d);
+    mpf_init(tmpPhi);
+    mpf_set(d, d1);
+    mpf_set_z(tmpPhi, phi);    
+    while (mpf_cmp_ui(d, 0) >= 0){
+        mpf_sub(d, d, tmpPhi);
+    }
+    mpf_add(d, d, tmpPhi);
+    mpf_add(d, d, tmpPhi);
+
+    mpz_t deck;
+    mpz_init(deck);
+
+    //decryption key
+    mpz_pow_ui(deck, enck, mpf_get_d(d));
+
+
+    mpz_t dec;
+    mpz_init(dec);
+    mpz_mod(dec, deck, n);
+
+    char de = char(mpz_get_ui(dec));
 
     cout << "\n"
          << "p = " << p << "\t\tq = " << q;
@@ -193,14 +227,15 @@ int main()
     cout << "Enter the message : ";
     getline(cin, orig);
     de = en = orig;
+    de = "";
 
     mpz_t k;
     mpz_init(k);
 
     for (int i = 0; i < orig.length(); i++)
         rsaenc(k, en[i], e, p, q);
-    //for (int i = 0; i < orig.length(); i++)
-    //    rsadec(de[i], e, p, q, k);
+    for (int i = 0; i < orig.length(); i++)
+        rsadec(de[i], e, p, q, k);
     cout << "\nThe encrypted text = " << en;
     cout << "\nThe decrypted text = " << de;
     return 0;
