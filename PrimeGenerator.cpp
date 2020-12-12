@@ -151,7 +151,7 @@ bool PrimeGenerator::millerRabin(mpz_t d, mpz_t n){
   // condition never reached, return composite
   return false;
 }
-
+/*
 int main(int argc, char** argv) {
   try {
     PrimeGenerator *pg = new PrimeGenerator(50, 1000);
@@ -182,3 +182,4 @@ int main(int argc, char** argv) {
   }
   return 0;
 }
+*/
