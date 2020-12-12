@@ -23,8 +23,9 @@ void gcd(mpz_t result, mpz_t a, mpz_t b)
     }
 }
 
-void rsaenc(mpf_t enck, char &val, mpz_t e, mpz_t p, mpz_t q)
+void rsaenc(mpz_t enck, char &val, mpz_t e, mpz_t p, mpz_t q)
 {
+    
     mpz_t phi, n;
     mpz_init(phi);
     mpz_init(n);
@@ -43,14 +44,14 @@ void rsaenc(mpf_t enck, char &val, mpz_t e, mpz_t p, mpz_t q)
     mpz_mul(n, p, q);
 
     // setting o to the double char value
-    mpf_t o;
-    mpf_init(o);
-    mpf_set_d(o, double(val));
+    mpz_t o;
+    mpz_init(o);
+    mpz_set_ui(o, int(val));
 
     // encryption key
-    mpf_init(enck);
+    mpz_init(enck);
     // NOTE: Cannot raise to mpz_t power (too big anyway)
-    mpf_pow_ui(enck, o, mpz_get_ui(e));
+    mpz_pow_ui(enck, o, mpz_get_ui(e));
 
     mpf_t d1, tmp;
     mpf_init(d1);
@@ -64,38 +65,32 @@ void rsaenc(mpf_t enck, char &val, mpz_t e, mpz_t p, mpz_t q)
     mpf_init(d);
     mpf_init(tmpPhi);
     mpf_set(d, d1);
-    mpf_set_z(tmpPhi, phi);
-    // bad version of fmod
+    mpf_set_z(tmpPhi, phi);    
     while (mpf_cmp_ui(d, 0) >= 0){
         mpf_sub(d, d, tmpPhi);
-        //gmp_printf ("fixed point mpf %.*Ff\n", d);
     }
+    mpf_add(d, d, tmpPhi);
     mpf_add(d, d, tmpPhi);
 
 
-    mpf_t deck;
-    mpf_init(deck);
+    mpz_t deck;
+    mpz_init(deck);
 
     //decryption key
-    mpf_pow_ui(deck, enck, mpf_get_d(d));
+    mpz_pow_ui(deck, enck, mpf_get_d(d));
 
     //encrypt the message
     // ?????
-    mpf_t enc, tmpN;
-    mpf_init(enc);
-    mpf_init(tmpN);
-    mpf_set(enc, enck);
-    mpf_set_z(tmpN, n);
+    mpz_t enc;
+    mpz_init(enc);
+    std::cout << mpz_get_ui(n) << std::endl;
 
     // infinite loop??
     // bad version of fmod
-    while (mpf_cmp_ui(enc, 0) >= 0){
-        mpf_sub(enc, enc, tmpN);
-    }
-    mpf_add(enc, enc, tmpN);
 
+    mpz_mod(enc, enck, n);
 
-    val = char(mpf_get_ui(enc));
+    val = char(mpz_get_ui(enc));
 
     cout << "\n"
          << "p = " << p << "\nq = " << q;
@@ -151,7 +146,7 @@ void pubkey(mpz_t result, mpz_t p, mpz_t q)
     mpz_init(track);
 
     // set e to rand
-    mpz_urandomb(result, randState, 100);
+    mpz_urandomb(result, randState, 10);
     
     // set p - 1 and q - 1
     mpz_t ptmp, qtmp;
@@ -199,8 +194,8 @@ int main()
     getline(cin, orig);
     de = en = orig;
 
-    mpf_t k;
-    mpf_init(k);
+    mpz_t k;
+    mpz_init(k);
 
     for (int i = 0; i < orig.length(); i++)
         rsaenc(k, en[i], e, p, q);
