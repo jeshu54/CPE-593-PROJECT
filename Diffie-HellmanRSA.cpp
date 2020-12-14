@@ -3,233 +3,116 @@
 #include<ctime>
 #include<iomanip>
 #include<vector>
-#import "Cryptography.h"
-#include <cryptopp/aes.h>
+#include "PrimeGenerator.h"
+#include <gmp.h>
 using namespace std;
-
-#include "pch.h"
-#include <iostream>
-#include "aes.h"
-#include <Windows.h>
-
-#include "osrng.h"
-using CryptoPP::AutoSeededRandomPool;
-
-using std::cout;
-using std::cerr;
-using std::endl;
-
-#include <string>
-using std::string;
-
-#include <cstdlib>
-using std::exit;
-
-#include "cryptlib.h"
-using CryptoPP::Exception;
-
-#include "hex.h"
-using CryptoPP::HexEncoder;
-using CryptoPP::HexDecoder;
-
-#include "filters.h"
-using CryptoPP::StringSink;
-using CryptoPP::StringSource;
-using CryptoPP::StreamTransformationFilter;
-
-#include "aes.h"
-using CryptoPP::AES;
-
-#include "ccm.h"
-using CryptoPP::CBC_Mode;
-
-#include "assert.h"
 
 
 uint32_t primechecker(uint32_t n){
-  bool isPrime;
+  bool isPrime = true;
   //int count [n];
-  uint32_t p;
-  for(int i = 2; i <= n/2; i++) {
-    if (n%i == 0) {
-      isPrime = false;
-      break; 
-      }
-      
-    else{
-      isPrime = true;
-      break;
-      }
-  } 
-	 return isPrime;
+  
+  if (n == 0 || n == 1) {
+        isPrime = false;
+    }
+    else {
+        for (int i = 2; i <= n / 2; ++i) {
+            if (n % i == 0) {
+                isPrime = false;
+                break;
+            }
+        }
+    }
+  
+   return isPrime;
 }
 
 uint32_t randomprimegenerator(uint32_t count) {
   bool isPrime;
-  vector<uint32_t> store;
+  vector<uint64_t> store;
   
-  for(uint32_t n=2; n< count; n++) {
+  for(uint64_t n=2; n< count; n++) {
 
     isPrime = primechecker(n);
-  	if(isPrime == true) {
-  		//cout << n << " ";
-  		store.push_back(n);
-  	}
-  	
+    if(isPrime == true) {
+      //cout << n << " ";
+      store.push_back(n);
+    }
+    
   }
-
-// random location  	
-  	return store[6];
+for (int l=0; l<store.size(); l++) 
+cout << store[l]<< endl;  
+// random location    
+    return store[20];
 }
 
-uint64_t secretkeygenerator(uint64_t n, uint64_t G, uint64_t a, uint64_t b, uint64_t p) {
-
-	uint64_t x;
-	//p= randomprimegenerator(n);
-	uint64_t y;
-	uint64_t secretkey, secretkey2;
-	x = fmod(pow(G,a),p); 	
-	//cout << x<< endl;			// Shared key 1
-	y= fmod(pow(G,b),p);  
-	//cout << y<< endl;				// Shared key 2
-	secretkey = fmod(pow(x,b),p); 
-	//cout << secretkey<< endl;		// Shared secret key 1
-	secretkey2 = fmod(pow(y,a),p);
-	//cout << secretkey2 << endl;   // Shared secret key 2
-	return secretkey;
-}
+  /**
+   * n number of numbers to check
+   * G random number
+   * a user A private key
+   * b user B private key
+   * p prime number 
+   **/
+  bool secretkeygenerator(mpz_t result, uint64_t n, mpz_t G, mpz_t a, mpz_t b)
+  {
+  mpz_t p;
+    PrimeGenerator* pg = new PrimeGenerator();
+    pg->setNumBits(n);
+    pg->getPrimeNumber(p);
+    gmp_printf("prime : %Zd\n", p);
+    mpz_t x, y;
+    mpz_init(x);
+    mpz_init(y);
+    // shared secret keys
+    // x = fmod(pow(G, a), p);
+    // x = G^a
+    mpz_pow_ui(x, G, mpz_get_ui(a));
+    // mod(x, p)
+    mpz_mod(x, x, p);
+    gmp_printf("x : %Zd\n", x);
+    //cout << x<< endl;     // Shared key 1
+    // y = fmod(pow(G, b), p)
+    // y = G^a
+    mpz_pow_ui(y, G, mpz_get_ui(b));
+    // mod(y, p)
+    mpz_mod(y, y, p);
+    gmp_printf("y : %Zd\n", y);
+    //cout << y<< endl;       // Shared key 2
+    mpz_t secretKey, secretKey2;
+    mpz_init(result);
+    mpz_init(secretKey2);
+    // Shared secret key 1
+    mpz_pow_ui(result, x, mpz_get_ui(b));
+    mpz_mod(result, result, p);
+    // Shared secret key 2
+    mpz_pow_ui(secretKey2, y, mpz_get_ui(a));
+    mpz_mod(secretKey2, secretKey2, p);
+    gmp_printf("secretkey : %Zd\n", secretKey2);
+  return (mpz_cmp(secretKey2, result) == 0);
+  }
 
 
 int main(){
-	int seed = time(0);
+  int seed = time(0);
     srand(seed);
-	uint64_t G,a,b,n,p;
-	a= 3; // private key 1
-	b= 4; // privare key 2
-	G= rand()%100; // Number Generator
-	n= 1000; // Number to check random prime number
-	p = randomprimegenerator(n);
-	//cout << G << endl;
-	cout << "Secret Key: " <<secretkeygenerator(n,G, a,b,p);
-	
-	// Work in progress
-	
-	/*
-	AutoSeededRandomPool prng;
-
-	byte key[AES::DEFAULT_KEYLENGTH];
-	prng.GenerateBlock(key, sizeof(key));
-
-	byte iv[AES::BLOCKSIZE];
-	prng.GenerateBlock(iv, sizeof(iv));
-
-	string plain = "CBC Mode Test";
-	string cipher, encoded, recovered;
-
-	/*********************************\
-	\*********************************/
-
-	// Pretty print key
-	encoded.clear();
-	StringSource(key, sizeof(key), true,
-		new HexEncoder(
-			new StringSink(encoded)
-		) // HexEncoder
-	); // StringSource
-	cout << "key: " << encoded << endl;
-
-	// Pretty print iv
-	encoded.clear();
-	StringSource(iv, sizeof(iv), true,
-		new HexEncoder(
-			new StringSink(encoded)
-		) // HexEncoder
-	); // StringSource
-	cout << "iv: " << encoded << endl;
-
-	/*********************************\
-	\*********************************/
-
-	try
-	{
-		cout << "plain text: " << plain << endl;
-
-		CBC_Mode< AES >::Encryption e;
-		e.SetKeyWithIV(key, sizeof(key), iv);
-
-		// The StreamTransformationFilter removes
-		//  padding as required.
-		StringSource s(plain, true,
-			new StreamTransformationFilter(e,
-				new StringSink(cipher)
-			) // StreamTransformationFilter
-		); // StringSource
-
-#if 0
-		StreamTransformationFilter filter(e);
-		filter.Put((const byte*)plain.data(), plain.size());
-		filter.MessageEnd();
-
-		const size_t ret = filter.MaxRetrievable();
-		cipher.resize(ret);
-		filter.Get((byte*)cipher.data(), cipher.size());
-#endif
-	}
-	catch (const CryptoPP::Exception& e)
-	{
-		cerr << e.what() << endl;
-		exit(1);
-	}
-
-	/*********************************\
-	\*********************************/
-
-	// Pretty print
-	encoded.clear();
-	StringSource(cipher, true,
-		new HexEncoder(
-			new StringSink(encoded)
-		) // HexEncoder
-	); // StringSource
-	cout << "cipher text: " << encoded << endl;
-
-	/*********************************\
-	\*********************************/
-
-	try
-	{
-		CBC_Mode< AES >::Decryption d;
-		d.SetKeyWithIV(key, sizeof(key), iv);
-
-		// The StreamTransformationFilter removes
-		//  padding as required.
-		StringSource s(cipher, true,
-			new StreamTransformationFilter(d,
-				new StringSink(recovered)
-			) // StreamTransformationFilter
-		); // StringSource
-
-#if 0
-		StreamTransformationFilter filter(d);
-		filter.Put((const byte*)cipher.data(), cipher.size());
-		filter.MessageEnd();
-
-		const size_t ret = filter.MaxRetrievable();
-		recovered.resize(ret);
-		filter.Get((byte*)recovered.data(), recovered.size());
-#endif
-
-		cout << "recovered text: " << recovered << endl;
-	}
-	catch (const CryptoPP::Exception& e)
-	{
-		cerr << e.what() << endl;
-		exit(1);
-	}
-
-	/*********************************\
-	\*********************************/
-
-	return 0; */
-	
+  mpz_t G,a,b;
+  mpz_init_set_ui(G, rand() % 100);
+  mpz_init_set_ui(a, 32);
+  mpz_init_set_ui(b, 42);
+  uint64_t n = 1000;
+  //a= 32; // private key 1
+  //b= 42; // privare key 2
+  //G= rand()%100; // Number Generator
+  //n= 100; // Number to check random prime number
+  //p = randomprimegenerator(n);
+  //cout << G << endl;
+  mpz_t result;
+  mpz_init(result);
+  if(secretkeygenerator(result, n,G, a,b)){
+      gmp_printf("Secret Key: %Zd\n", result);
+  }
+  else {
+    cout << "Keys do not match" << endl;
+  }
+  //cout << "Secret Key: " << result << endl;
 }
