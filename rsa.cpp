@@ -18,19 +18,26 @@ int gcd(int a, int b) {
     }
 }
 
-double rsaenc(char &val,double e,double p,double q)
+long rsaenc(char &val,long e,long p,long q)
 {
-    double phi= (p-1)*(q-1);                          //calculate phi
-    double n=p*q;
+    cout<<int(val)<<endl;
+    long phi= (p-1)*(q-1);                          //calculate phi
+    long n=p*q;
 
-    double o=double(val);
-    double enck = pow(o,e);                          //encryption key
-
-    double d1 = 1/e;                                 
-    double d=  fmod(d1,phi);                        //private key
-    double deck = pow(enck ,d);                         //decryption key 
+    long o=long(val);
+    long enck = pow(o,e);                          //encryption key
+    cout<<"enck ="<<enck<<" = "<<o<<" ^ "<<e<<" mod "<<n<<endl;                            
+     long d,k,f=0;
+    for(int i=0;f!=1;i++)
+    {
+        k=(1+i*phi);
+        if(fmod(k,e)==0)
+        f=1;
+    }
+    d=k/e;                                     //private key
+    long deck = pow(enck ,d);                         //decryption key 
     
-    double enc =fmod(enck ,n);                            //encrypt the message
+    long enc =fmod(enck ,n);                            //encrypt the message
     val=char(enc);
     
     cout<<"\n"<<"p = "<<p<<"\t\tq = "<<q;
@@ -42,38 +49,47 @@ double rsaenc(char &val,double e,double p,double q)
     cout<<"\n--------------------------------------------------------------";
 
     //cout<<"\npublic key"<<e;
-    return enck;
+    return enc;
 }
 
-void rsadec(char &val,double e,double p,double q,double enck)
+void rsadec(char &val,long e,long p,long q,long enck)
 {
-    double phi= (p-1)*(q-1);                           //calculate phi
-    double n=p*q;
-
-    double d1 = 1/e;                                 
-    double d=  fmod(d1,phi);                        //private key
-    double deck = pow(enck ,d);                         //decryption key 
+    cout<<"val = "<<val<<endl;
+    
+    long phi= (p-1)*(q-1);                           //calculate phi
+    long n=p*q;
+    
+    long d,k,f=0;
+    for(int i=0;f!=1;i++)
+    {
+        k=(1+i*phi);
+        if(fmod(k,e)==0)
+        f=1;
+    }
+    d=k/e;
+    cout<<d;                            //private key
+    long deck = pow(enck ,d);                         //decryption key 
      
-    double dec =fmod(deck ,n);                              //decrypt the message
-    char de=char(dec);
+    long dec =fmod(deck ,n);                              //decrypt the message
+    val=char(dec);
     
     cout<<"\n"<<"p = "<<p<<"\t\tq = "<<q;
     cout<<"\n"<<"n=p*q = "<<n<<"\tphi = "<<phi;
     cout<<"\n"<<"e = "<<e<<"\t\td = "<<d;
     cout<<"\n--------------------------------------------------------------";
     cout<<"\n"<<"Decrypted value = "<<dec;
-    cout<<"\n"<<"Decrypted char = "<<de;
+    cout<<"\n"<<"Decrypted char = "<<val;
     cout<<"\n--------------------------------------------------------------";
 }
 
-double pubkey(double p,double q)
+long pubkey(long p,long q)
 {
-    double e=rand()%100;
-    double phi= (p-1)*(q-1);                          //calculate phi
-    double track;
+    long e=rand()%10;
+    long phi= (p-1)*(q-1);                          //calculate phi
+    long track;
     
     while(e<phi) {                                    //to check e and phi(n) are coprime.
-        track = gcd(e,phi);
+        track = gcd(e,phi);                 
         if(track==1)
             break;
         else
@@ -85,18 +101,22 @@ int main() {
   /* BigInteger a = pow(2,7830457);
    cout<<a;
    */
-    double p = 31, q = 29;
+    long p = 61, q = 53;
     string orig,de,en;
-    double e= pubkey(p,q);
+    long e= pubkey(p,q);
     cout<<"Enter the message : ";
     //cin>>orig;
     getline(cin,orig);
-    de=en=orig;
-    double k=0;
+    en=orig;
+    long k[orig.length()];
     for(int i=0;i<orig.length();i++)
-    k=rsaenc(en[i],e,p,q);
+    k[i]=rsaenc(en[i],e,p,q);
+    de=en;
     for(int i=0;i<orig.length();i++)
-    rsadec(de[i],e,p,q,k);
+    {
+    cout<<"\nen["<<i<<"] = "<<int(en[i])<<"  k["<<i<<"] = "<<k[i]<<endl;
+    rsadec(de[i],e,p,q,k[i]);
+    }
     cout<<"\nThe encrypted text = "<<en;
     cout<<"\nThe decrypted text = "<<de;
     return 0;
