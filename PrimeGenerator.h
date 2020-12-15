@@ -1,3 +1,4 @@
+#pragma once
 // For std::set
 #include <set>
 // For uint64_t
