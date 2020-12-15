@@ -5,6 +5,9 @@
 // For using mpz_t and gmp functions
 #include <gmp.h>
 
+// disable if PrimeGenerator is not the main function
+#define MAIN false
+
 class PrimeGenerator{
 private:
   /* 

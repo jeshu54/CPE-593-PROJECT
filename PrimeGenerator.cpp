@@ -3,8 +3,13 @@
 #include <limits>
 // For find()
 #include <algorithm>
+// Seed for random numbers
+#include <time.h>
 
+// io if main function exists
+#if MAIN
 #include <iostream>
+#endif // MAIN
 
 using namespace std;
 
@@ -20,7 +25,7 @@ PrimeGenerator::PrimeGenerator()
 }
 
 /*
-* Secondary constructor, sets upu the random generator state
+* Secondary constructor, sets up the random generator state
 * and sets the number of Miller Rabin iterations
 */
 PrimeGenerator::PrimeGenerator(uint16_t v) : iterations(v)
@@ -30,7 +35,7 @@ PrimeGenerator::PrimeGenerator(uint16_t v) : iterations(v)
 }
 
 /*
-* Secondary constructor, sets upu the random generator state
+* Secondary constructor, sets up the random generator state
 * and sets the number of Miller Rabin iterations and number of bits
 */
 PrimeGenerator::PrimeGenerator(uint16_t v, uint64_t b) : iterations(v), numBits(b)
@@ -43,7 +48,7 @@ PrimeGenerator::PrimeGenerator(uint16_t v, uint64_t b) : iterations(v), numBits(
 * Expected to be 7+ bits to find prime values with the checker
 */
 void PrimeGenerator::setNumBits(uint64_t bits){
-  numBits = bits;
+  numBits = (bits > 7 ? bits : 7);
 }
 
 /*
@@ -109,7 +114,9 @@ bool PrimeGenerator::isPrime(mpz_t result){
     }
     count++;
   }
-
+  // cleanup
+  mpz_clear(tmp);
+  mpz_clear(d);
   // probably prime
   return true;
 }
@@ -148,14 +155,21 @@ bool PrimeGenerator::millerRabin(mpz_t d, mpz_t n){
       return true;
     }
   }
+  // cleanup
+  mpz_clear(nMinus1);
+  mpz_clear(rand);
+  mpz_clear(d);
+  mpz_clear(n);
+  mpz_clear(x);
   // condition never reached, return composite
   return false;
 }
-/*
+
+#if MAIN
 int main(int argc, char** argv) {
   try {
-    PrimeGenerator *pg = new PrimeGenerator(50, 1000);
-    pg->setSeed(1);
+    PrimeGenerator *pg = new PrimeGenerator(30, 1000);
+    pg->setSeed( static_cast<uint64_t> (time(NULL)));
     pg->setNumBits(100);
 
     switch (argc) {
@@ -182,4 +196,4 @@ int main(int argc, char** argv) {
   }
   return 0;
 }
-*/
+#endif // MAIN
