@@ -61,8 +61,10 @@ int main(){
     pg->getPrimeNumber(q);
 
     //string orig, de, en;
-    mpz_t e,orig, de, en,dk,pq;
+    mpz_t e,orig, de, en, dk, pq;
     mpz_init(e);
+    mpz_init(en);
+    mpz_init(de);
     mpz_init(orig);
     mpz_init(dk);
     mpz_init(pq);
@@ -73,19 +75,22 @@ int main(){
 
     pg->setNumBits(500);
     pg->getRandom(orig);
-    mpz_init_set(en, orig);
+    //mpz_init_set(en, orig);
     
 
-    rsaenc(en, e, p, q, dk, pq);
-    
+    rsa(e, p, q, dk, pq);
+
+    mpz_powm(en, orig, e, pq);              //c = m^e mod n
+    mpz_powm(de, en, dk, pq);               //m = c^d mod n
+
     // Create and open a RSAencryptedtext text file
     ofstream rsae("RSAencryptedtext.txt");
     rsae << en;               // Write to the file
     rsae.close();
 
     // Create and open a decryptionkey text file
-    ofstream rsadk("decryptionkey.txt");
-    rsadk << dk;               // Write to the file
+    ofstream rsadk("encryptionkey.txt");
+    rsadk << e;               // Write to the file
     rsadk.close();
 
     // Create and open a primemultiple n=p*q text file
@@ -94,27 +99,39 @@ int main(){
     rsan.close();
     cout<<"\n\n\n";
     cout<<"\n---------------------------------------------------------------------";
-    cout<<"\n\t\tRSA Encrypt(at Point A)";
+    cout<<"\n\t\tRSA Key Generation(at Point A)";
     cout<<"\n---------------------------------------------------------------------";
-    mpz_init_set(de, en);
-    rsadec(de, dk, pq);
-    cout << "\nThe Original text = " << orig;
-    cout << "\n\nThe Encrypted text = " << en;
+    cout << "\nGenerating Encryption Key = " << e;
+    cout << "\n\nGenerating Decryption Key = " << dk;
     cout<<"\n\n\n";
     cout<<"\n---------------------------------------------------------------------";
     cout<<"\n\t\tAES-256 (from Point A to Point B)";
     cout<<"\n---------------------------------------------------------------------";
-    cout << "\n\nThe Decryption Key to send using AES = " << dk;
+    cout << "\n\nThe Encryption Key to send using AES = " << e;
     cout << "\n\nThe n to send using AES = " << pq;
     cout<<"\n\n\n";
     cout<<"\n---------------------------------------------------------------------";
-    cout<<"\n\t\tRSA Decrypt (at Point B)";
+    cout<<"\n\t\tRSA Encrypt(at Point B)";
+    cout<<"\n---------------------------------------------------------------------";
+    cout << "\nThe Original text = " << orig;
+    cout << "\n\nThe Encrypted text = " << en;
+    cout<<"\n\n\n";
+    cout<<"\n---------------------------------------------------------------------";
+    cout<<"\n\t\tAES-256 (from Point B to Point E)";
+    cout<<"\n---------------------------------------------------------------------";
+    cout << "\n\nThe Encryption Text to send using AES = " << en;
+    cout<<"\n\n\n";
+    cout<<"\n---------------------------------------------------------------------";
+    cout<<"\n\t\tRSA Decrypt (at Point A)";
     cout<<"\n---------------------------------------------------------------------";
     cout << "\n\nThe Decrypted text = " << de;
 
     if (mpz_cmp(orig, de) == 0)
     {
-        cout << "\n\n The Original Text matches the Decrypted Text!!";
+        cout<<"\n\n\n";
+        cout<<"\n---------------------------------------------------------------------";
+        cout<<"\n\tThe Original Text matches the Decrypted Text!!";
+        cout<<"\n---------------------------------------------------------------------\n\n\n";
     }
 
     return 0;

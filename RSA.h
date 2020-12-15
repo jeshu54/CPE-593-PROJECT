@@ -32,7 +32,7 @@ void gcd(mpz_t result, mpz_t a, mpz_t b)
     }
 }
 
-void rsaenc(mpz_t val, mpz_t e, mpz_t p, mpz_t q,mpz_t d,mpz_t pq)
+void rsa(mpz_t e, mpz_t p, mpz_t q,mpz_t d,mpz_t pq)
 {
     mpz_t enck;
     mpz_t phi, n;
@@ -52,15 +52,14 @@ void rsaenc(mpz_t val, mpz_t e, mpz_t p, mpz_t q,mpz_t d,mpz_t pq)
 
     mpz_mul(n, p, q);
     mpz_set(pq,n);
-    // setting o to the double char value
+    /* setting o to the double char value
     mpz_t o;
     mpz_init(o);
     mpz_set(o, val);
-
+    */
     // encryption key
     mpz_init(enck);
     // NOTE: Cannot raise to mpz_t power (too big anyway)
-    mpz_pow_ui(enck, o, mpz_get_ui(e));
     
     //private key
     mpz_t k,pktmp,one,i,f,mt;
@@ -93,12 +92,15 @@ void rsaenc(mpz_t val, mpz_t e, mpz_t p, mpz_t q,mpz_t d,mpz_t pq)
     //cout<<"c^d = "<<deck<<endl;
     //encrypt the message
     // ?????
-    mpz_t enc;
-    mpz_init(enc);
+    //mpz_t enc;
+    //mpz_init(enc);
+    
+    //mpz_pow_ui(enck, o, mpz_get_ui(e));
+    //mpz_mod(enc, enck, n);
 
-    mpz_mod(enc, enck, n);
+    //mpz_powm(enck, o, e, n);
+    //mpz_set(val, enck);
 
-    mpz_set(val, enc);
     /*
     cout << "\n"
          << "p = " << p << "\nq = " << q;
@@ -172,14 +174,14 @@ void rsadec(mpz_t enck, mpz_t d,mpz_t n)
     //mpz_t dec;
     //mpz_init(dec);
     //mpz_mod(dec, deck, n);
-
+/*
     mpz_t deck;
     mpz_init(deck);
     mpz_powm(deck, enck, d, n);
     mpz_set(enck, deck);
     //cout<<"\ndeck = "<<deck<<"\nc^d = "<<enck<<"\n ^ \n"<<d;
 
-    /*
+    
     cout << "\n\n"
          << "p = " << p << "\nq = " << q;
     cout << "\n\n"
