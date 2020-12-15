@@ -32,7 +32,7 @@ void gcd(mpz_t result, mpz_t a, mpz_t b)
     }
 }
 
-void rsaenc(mpz_t val, mpz_t e, mpz_t p, mpz_t q)
+void rsaenc(mpz_t val, mpz_t e, mpz_t p, mpz_t q,mpz_t d,mpz_t pq)
 {
     mpz_t enck;
     mpz_t phi, n;
@@ -51,7 +51,7 @@ void rsaenc(mpz_t val, mpz_t e, mpz_t p, mpz_t q)
     mpz_set(phi, ptmp);
 
     mpz_mul(n, p, q);
-
+    mpz_set(pq,n);
     // setting o to the double char value
     mpz_t o;
     mpz_init(o);
@@ -63,8 +63,7 @@ void rsaenc(mpz_t val, mpz_t e, mpz_t p, mpz_t q)
     mpz_pow_ui(enck, o, mpz_get_ui(e));
     
     //private key
-    mpz_t d, k,pktmp,one,i,f,mt;
-    mpz_init(d);
+    mpz_t k,pktmp,one,i,f,mt;
     mpz_init(k);
     mpz_init(mt);
     mpz_init(pktmp);
@@ -88,11 +87,9 @@ void rsaenc(mpz_t val, mpz_t e, mpz_t p, mpz_t q)
     
     mpz_div(d, k, e);
 
-    mpz_t deck;
-    mpz_init(deck);
     //cout<<"c = "<<enck<<endl;
     //decryption key
-    mpz_pow_ui(deck, enck, mpz_get_d(d));
+    //mpz_pow_ui(deck, enck, mpz_get_d(d));
     //cout<<"c^d = "<<deck<<endl;
     //encrypt the message
     // ?????
@@ -118,9 +115,9 @@ void rsaenc(mpz_t val, mpz_t e, mpz_t p, mpz_t q)
     */
 }
 
-void rsadec(mpz_t enck, mpz_t e, mpz_t p, mpz_t q)
+void rsadec(mpz_t enck, mpz_t d,mpz_t n)
 {
-    mpz_t phi, n;
+    /*mpz_t phi, n;
     mpz_init(phi);
     mpz_init(n);
 
@@ -147,7 +144,7 @@ void rsadec(mpz_t enck, mpz_t e, mpz_t p, mpz_t q)
     mpz_init_set_ui(i, 0);
     mpz_init_set_ui(f, 0);
     //cout<<"\nf = "<<f<<endl;
-    for(;mpz_cmp_ui(f,1)!=0/*&&mpz_cmp_ui(i,1000)!=0*/;mpz_add_ui(i, i, 1))
+    for(;mpz_cmp_ui(f,1)!=0;mpz_add_ui(i, i, 1))
     {
         // phi (p-1 * q-1)
         // ((i * phi) + 1) % e == 0
@@ -168,7 +165,7 @@ void rsadec(mpz_t enck, mpz_t e, mpz_t p, mpz_t q)
     mpz_div(d, k, e);
 
     mpz_t deck;
-    mpz_init(deck);
+    mpz_init(deck);*/
     //decryption key
     //mpz_pow_ui(deck, enck, mpz_get_d(d));
     //cout<<"\ndeck = "<<deck<<"\nc^d = "<<enck<<"\n ^ \n"<<d;
@@ -176,6 +173,8 @@ void rsadec(mpz_t enck, mpz_t e, mpz_t p, mpz_t q)
     //mpz_init(dec);
     //mpz_mod(dec, deck, n);
 
+    mpz_t deck;
+    mpz_init(deck);
     mpz_powm(deck, enck, d, n);
     mpz_set(enck, deck);
     //cout<<"\ndeck = "<<deck<<"\nc^d = "<<enck<<"\n ^ \n"<<d;
@@ -227,7 +226,7 @@ void pubkey(mpz_t &result, mpz_t p, mpz_t q)
 
     //cout << result << endl;
     //cout << phi << endl;
-    int count = 0;
+    //int count = 0;
     while (mpz_cmp(result, phi) < 0)
     {
         //cout << "count = " << ++count << endl;

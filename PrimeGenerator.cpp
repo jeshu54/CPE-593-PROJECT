@@ -90,7 +90,7 @@ bool PrimeGenerator::isPrime(mpz_t result){
   int count = 0;
   mpz_init(tmp);
   // test divisibility by first few prime values
-  for (int i = 0; i < sizeof(knownPrimes) / sizeof(mpz_t); i++) {
+  for (unsigned long int i = 0; i < sizeof(knownPrimes) / sizeof(mpz_t); i++) {
     // divisible by one of the prime numbers
     // do not continue checking this value
     if (mpz_mod_ui(tmp, result, knownPrimes[i]) == 0) {

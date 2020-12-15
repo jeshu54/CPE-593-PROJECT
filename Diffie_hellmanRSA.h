@@ -33,7 +33,7 @@ bool secretkeygenerator(mpz_t result, uint64_t n, mpz_t G, mpz_t a, mpz_t b, mpz
   mpz_mod(y, y, p);
   //gmp_printf("y : %Zd\n", y);
   // Shared key 2 ****************************
-  mpz_t secretKey, secretKey2;
+  mpz_t secretKey2;
   mpz_init(result);
   mpz_init(secretKey2);
   // Shared secret key 1 *********************
