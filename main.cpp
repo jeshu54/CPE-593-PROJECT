@@ -1,3 +1,9 @@
+/**
+ * Karan Modi, Vincent Loud, Avro
+ * Prime generator, RSA, and Diffie-Helman
+ * Compile with: g++ -Wall .\PrimeGenerator.cpp  .\main.cpp -lgmp -lgmpxx 
+ * */
+
 #include "PrimeGenerator.h";
 #include "Diffie_hellmanRSA.h";
 #include "RSA.h";

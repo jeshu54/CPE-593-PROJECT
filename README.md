@@ -47,3 +47,7 @@ Goals (I = Independent, D = Dependent)
 •	Calculate large prime numbers with big integer (I)
 •	Implement key exchange (I)Create presentation (along the way) (D)
 •	Write paper (along the way) (D)
+
+
+Compilation:
+g++ -Wall .\PrimeGenerator.cpp  .\main.cpp -lgmp -lgmpxx
