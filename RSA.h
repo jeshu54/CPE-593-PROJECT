@@ -198,7 +198,7 @@ void rsagen(mpz_t e, mpz_t p, mpz_t q,mpz_t d,mpz_t pq)
     mpz_init_set_ui(i, 0);
     mpz_init_set_ui(f, 0);
     //cout<<"\nf = "<<f<<endl;
-    for(;mpz_cmp_ui(f,1)!=0&&mpz_cmp_ui(i,1000)!=0;mpz_add_ui(i, i, 1))
+    for(;mpz_cmp_ui(f,1)!=0/*&&mpz_cmp_ui(i,1000)!=0*/;mpz_add_ui(i, i, 1))
     {
         mpz_mul(pktmp, i, phi);
         //cout<<"Step 1 works\n";
