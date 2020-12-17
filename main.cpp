@@ -80,23 +80,6 @@ int main(){
 
     rsagen(e, p, q, dk, pq);
 
-    rsaenc(en, orig, e, pq);              //c = m^e mod n
-    rsadec(de, en, dk, pq);               //m = c^d mod n
-
-    // Create and open a RSAencryptedtext text file
-    ofstream rsae("RSAencryptedtext.txt");
-    rsae << en;               // Write to the file
-    rsae.close();
-
-    // Create and open a decryptionkey text file
-    ofstream rsadk("encryptionkey.txt");
-    rsadk << e;               // Write to the file
-    rsadk.close();
-
-    // Create and open a primemultiple n=p*q text file
-    ofstream rsan("primemultiple.txt");
-    rsan << pq;               // Write to the file
-    rsan.close();
     cout<<"\n\n\n";
     cout<<"\n---------------------------------------------------------------------";
     cout<<"\n\t\tRSA Key Generation(at Point A)";
@@ -104,6 +87,24 @@ int main(){
     cout << "\nGenerating Encryption Key = " << e;
     cout << "\n\nGenerating Decryption Key = " << dk;
     cout<<"\n\n\n";
+
+    // Create and open a encryptionkey text file
+    ofstream rsaen("encryptionkey.txt");
+    rsaen << e;               // Write to the file
+    rsaen.close();
+
+    // Create and open a decryptionkey text file
+    ofstream rsadk("decryptionkey.txt");
+    rsadk << e;               // Write to the file
+    rsadk.close();
+
+    // Create and open a primemultiple n=p*q text file
+    ofstream rsan("primemultiple.txt");
+    rsan << pq;               // Write to the file
+    rsan.close();
+
+    rsaenc(en, orig, e, pq);              //c = m^e mod n
+
     cout<<"\n---------------------------------------------------------------------";
     cout<<"\n\t\tAES-256 (from Point A to Point B)";
     cout<<"\n---------------------------------------------------------------------";
@@ -116,6 +117,19 @@ int main(){
     cout << "\nThe Original text = " << orig;
     cout << "\n\nThe Encrypted text = " << en;
     cout<<"\n\n\n";
+
+    // Create and open a RSAencryptedtext text file
+    ofstream rsae("RSAencryptedtext.txt");
+    rsae << en;               // Write to the file
+    rsae.close();
+
+    rsadec(de, en, dk, pq);               //m = c^d mod n
+
+    // Create and open a RSAdecryptedtext text file
+    ofstream rsad("RSAdecryptedtext.txt");
+    rsad << en;               // Write to the file
+    rsad.close();
+
     cout<<"\n---------------------------------------------------------------------";
     cout<<"\n\t\tAES-256 (from Point B to Point E)";
     cout<<"\n---------------------------------------------------------------------";
