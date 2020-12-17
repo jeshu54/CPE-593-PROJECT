@@ -69,7 +69,7 @@ int main(){
     mpz_init(dk);
     mpz_init(pq);
 
-    pubkey(e, p, q);
+    //pubkey(e, p, q);
     //cout << "Enter the message : ";
     //getline(cin, orig);
 
@@ -78,10 +78,10 @@ int main(){
     //mpz_init_set(en, orig);
     
 
-    rsa(e, p, q, dk, pq);
+    rsagen(e, p, q, dk, pq);
 
-    mpz_powm(en, orig, e, pq);              //c = m^e mod n
-    mpz_powm(de, en, dk, pq);               //m = c^d mod n
+    rsaenc(en, orig, e, pq);              //c = m^e mod n
+    rsadec(de, en, dk, pq);               //m = c^d mod n
 
     // Create and open a RSAencryptedtext text file
     ofstream rsae("RSAencryptedtext.txt");
