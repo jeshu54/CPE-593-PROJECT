@@ -12,7 +12,6 @@
 #endif // MAIN
 
 using namespace std;
-
 /*
 * Default constructor, sets upu the random generator state
 * and sets number of Miller Rabin iterations to 20
@@ -25,7 +24,7 @@ PrimeGenerator::PrimeGenerator()
 }
 
 /*
-* Secondary constructor, sets up the random generator state
+* Secondary constructor, sets upu the random generator state
 * and sets the number of Miller Rabin iterations
 */
 PrimeGenerator::PrimeGenerator(uint16_t v) : iterations(v)
@@ -35,7 +34,7 @@ PrimeGenerator::PrimeGenerator(uint16_t v) : iterations(v)
 }
 
 /*
-* Secondary constructor, sets up the random generator state
+* Secondary constructor, sets upu the random generator state
 * and sets the number of Miller Rabin iterations and number of bits
 */
 PrimeGenerator::PrimeGenerator(uint16_t v, uint64_t b) : iterations(v), numBits(b)
@@ -47,8 +46,8 @@ PrimeGenerator::PrimeGenerator(uint16_t v, uint64_t b) : iterations(v), numBits(
 * Set the number of bits when generating random numbers
 * Expected to be 7+ bits to find prime values with the checker
 */
-void PrimeGenerator::setNumBits(uint64_t bits){
-  numBits = (bits > 7 ? bits : 7);
+void PrimeGenerator::setNumBits(uint64_t bits) {
+  numBits = bits;
 }
 
 /*
@@ -61,7 +60,7 @@ void PrimeGenerator::setSeed(uint64_t seed) {
 /*
 * Generate a random number with numBits number of bits
 */
-void PrimeGenerator::getRandom(mpz_t result){
+void PrimeGenerator::getRandom(mpz_t result) {
   mpz_init(result);
   mpz_rrandomb(result, randState, numBits);
 }
@@ -77,23 +76,28 @@ void PrimeGenerator::getPrimeNumber(mpz_t result) {
   mpz_init(result);
   bool primeFound = false;
   // loop until a prime value is found
-  while(!primeFound){
+  mpz_t counter;
+  mpz_init_set_ui(counter, 0);
+  while (!primeFound) {
+    mpz_add_ui(counter, counter, 1);
     // get random number
     getRandom(result);
     primeFound = isPrime(result);
   }
+  mpz_clear(counter);
 }
 
-bool PrimeGenerator::isPrime(mpz_t result){
+bool PrimeGenerator::isPrime(mpz_t result) {
 
   mpz_t tmp;
   int count = 0;
   mpz_init(tmp);
   // test divisibility by first few prime values
-  for (unsigned long int i = 0; i < sizeof(knownPrimes) / sizeof(mpz_t); i++) {
+  for (int i = 0; i < sizeof(knownPrimes) / sizeof(mpz_t); i++) {
     // divisible by one of the prime numbers
     // do not continue checking this value
     if (mpz_mod_ui(tmp, result, knownPrimes[i]) == 0) {
+      mpz_clear(tmp);
       return false;
     }
   }
@@ -104,37 +108,42 @@ bool PrimeGenerator::isPrime(mpz_t result){
   mpz_t d;
   mpz_init(d);
   mpz_sub_ui(d, result, 1);
-  while(mpz_divisible_ui_p(d, 2) != 0){
+  while (mpz_divisible_ui_p(d, 2) != 0) {
     mpz_div_ui(d, d, 2);
   }
 
   while (count < iterations) {
     if (!millerRabin(d, result)) {
+      mpz_clear(tmp);
+      mpz_clear(d);
       return false;
     }
     count++;
   }
-  // cleanup
+
   mpz_clear(tmp);
   mpz_clear(d);
   // probably prime
   return true;
 }
 
-bool PrimeGenerator::millerRabin(mpz_t d, mpz_t n){
-  
+bool PrimeGenerator::millerRabin(mpz_t d, mpz_t n) {
+
   mpz_t rand, x, nMinus1;
   mpz_init(nMinus1);
   mpz_sub_ui(nMinus1, n, 1);
   mpz_init_set_ui(rand, 0);
   mpz_init(x);
   // [2, n-2]
-  while (mpz_cmp(n, rand) < 0 || mpz_cmp_d(rand, 2) < 0){
+  while (mpz_cmp(n, rand) < 0 || mpz_cmp_d(rand, 2) < 0) {
     getRandom(rand);
   }
   // powermod
   mpz_powm(x, rand, d, n);
-  if (mpz_cmp_ui(x, 1) == 0 || mpz_cmp(x, nMinus1) == 0){
+  if (mpz_cmp_ui(x, 1) == 0 || mpz_cmp(x, nMinus1) == 0) {
+    mpz_clear(nMinus1);
+    mpz_clear(rand);
+    mpz_clear(x);
     return true;
   }
 
@@ -142,23 +151,30 @@ bool PrimeGenerator::millerRabin(mpz_t d, mpz_t n){
   // d does not reach nMinus1
   // x^2 % n is not 1
   // x^2 % n is not nMinus1
-  while (mpz_cmp(d, nMinus1) != 0){
+  while (mpz_cmp(d, nMinus1) != 0) {
     // power mod x
     mpz_powm_ui(x, x, 2, n);
     // double d
     mpz_mul_ui(d, d, 2);
     // conditions
-    if (mpz_cmp_ui(x, 1) == 0){
+    if (mpz_cmp_ui(x, 1) == 0) {
+      mpz_clear(nMinus1);
+      mpz_clear(rand);
+      mpz_clear(n);
+      mpz_clear(x);
       return false;
     }
-    if (mpz_cmp(x, nMinus1) == 0){
+    if (mpz_cmp(x, nMinus1) == 0) {
+      mpz_clear(nMinus1);
+      mpz_clear(rand);
+      mpz_clear(x);
       return true;
     }
   }
+
   // cleanup
   mpz_clear(nMinus1);
   mpz_clear(rand);
-  mpz_clear(d);
   mpz_clear(n);
   mpz_clear(x);
   // condition never reached, return composite
