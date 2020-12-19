@@ -1,12 +1,13 @@
 /**
+ * Try this to make it more secure and waste some CPU Cycles!
  * GROUP 12: Karan Modi, Vincent Loud, Avro
  * Prime generator, RSA, and Diffie-Helman
- * Compile with: g++ -Wall .\PrimeGenerator.cpp  .\main.cpp -lgmp -lgmpxx 
+ * Compile with: g++ -Wall .\PrimeGenerator.cpp  .\mainbige.cpp -lgmp -lgmpxx 
  * */
 
 #include "PrimeGenerator.h"
 #include "Diffie_hellmanRSA.h"
-#include "RSA.h"
+#include "RSAbige.h"
 #include <stdlib.h>
 #include <time.h>
 #include <iostream>

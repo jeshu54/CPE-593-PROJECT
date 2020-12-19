@@ -136,7 +136,7 @@ void rsagen(mpz_t e, mpz_t p, mpz_t q,mpz_t d,mpz_t pq)
     mpz_init(track);
     mpz_init(n);
     // set e to rand
-    mpz_urandomb(e, randState, 10);
+    mpz_urandomb(e, randState, 30);
     //cout << result << endl;
     
     // set p - 1 and q - 1

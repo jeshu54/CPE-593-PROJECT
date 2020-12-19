@@ -11,10 +11,9 @@ Implement RSA using a big integer library. It doesn’t have to be production qu
 
 Project sections:
 - Big Integer prime numbers (generate prime numbers)
-- implement backend to encrypt/decrypt (use prime numbers)
-https://www.geeksforgeeks.org/rsa-algorithm-cryptography/
-- add diffie hellman key exchange for initial rsa key (not our own code)
-https://www.geeksforgeeks.org/implementation-diffie-hellman-algorithm/ 
+- implement RSA encrypt/decrypt (use prime numbers)
+- Add diffie hellman key exchange for shared secret key
+- Use AES-256 to transmit information(VSCode Extension)
 
 Project Extension/Enhancement:
 - add front end to exchange messages (webpage or sockets?)
